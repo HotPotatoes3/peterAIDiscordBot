@@ -1,17 +1,27 @@
 import os
+import shutil
+import uuid
+import PIL.Image
 
 import discord
 from discord.ext import commands
 
+import requests
+
 import responses
 
+
+
+
+
+
 #sending messages through non-slash commands
-async def send_message(message, user_message, is_private):
+async def send_message(message, user_message):
     try:
         response = responses.handle_response(user_message)
-        await message.author.send(response) if is_private else await message.reply(response)
+        await message.reply(response)
     except Exception as e:
-        return
+        print(e)
 
 
 intents = discord.Intents.default()
@@ -23,25 +33,40 @@ def run_discord_bot(discord):
 
     TOKEN = os.environ['TOKEN']
 
-    client = discord.Client(intents=intents)
     bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 
-    @client.event
-    async def on_ready():
-        print(f'{client.user} is now running!')
 
 
     #NON-SLASH COMMANDS
     @bot.event
     async def on_message(message):
-        if message.author != client.user:
+        if message.author != bot.user:
             username = str(message.author)
             user_message = str(message.content)
             channel = str(message.channel)
 
             print(f"{username} said: '{user_message}' ({channel})")
 
-            await send_message(message, user_message, is_private=False)
+            if(len(message.attachments) == 0):
+                await send_message(message, user_message)
+            elif(message.content[0:10] == '?askpeter+'):
+                url = message.attachments[0].url
+                if url[0:26] == "https://cdn.discordapp.com":
+                    r = requests.get(url, stream=True)
+                    imageName = str(uuid.uuid4()) +'.jpg'
+                    with open(imageName, 'wb') as out_file:
+                        print('Saving image: ' + imageName)
+                        shutil.copyfileobj(r.raw,out_file)
+                    img = PIL.Image.open(imageName)
+
+                    await message.reply(responses.image_to_text(message.content[11:], img))
+                    os.remove(imageName)
+
+
+
+
+
+
 
     @bot.event
     async def on_ready():
@@ -72,5 +97,4 @@ def run_discord_bot(discord):
 
 
 
-    # client.run(TOKEN)
     bot.run(TOKEN)
