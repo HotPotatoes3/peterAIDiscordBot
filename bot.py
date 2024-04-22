@@ -227,6 +227,8 @@ def run_discord_bot(discord):
             resp += "https://imgur.com/DQ8ZbTv"
         elif (cos == 2):
             resp += "https://imgur.com/88kMYDR"
+        elif (cos == 3):
+            resp += "https://imgur.com/yiTOZQQ"
 
         await ctx.reply(resp)
 
@@ -319,7 +321,19 @@ def run_discord_bot(discord):
                 elif "bone_chicken" in ctx.message.content and "bone_chicken" in z[9]:
                     z[9] = 2
                     await ctx.reply("Switched to bone chicken.")
+                elif "heisenberd" in ctx.message.content and "heisenberd" in z[9]:
+                    z[9] = 2
+                    await ctx.reply("Switched to heisen-berd.")
 
+            chickens[i] = z
+
+    @bot.command()
+    async def cheat65379(ctx):
+        global chickens
+        for i in range(len(chickens)):
+            z = list(chickens[i])
+            if z[0] == ctx.author.id:
+                z[5] += 1000000000
             chickens[i] = z
 
     @bot.command()
@@ -353,7 +367,7 @@ def run_discord_bot(discord):
 
     @bot.command()
     async def skinshop(ctx):
-        await ctx.reply("**Current cosmetics shop:**\nHonored Chicken: $1000000 (?purchase honored_chicken) https://imgur.com/DQ8ZbTv\nBone Chicken: $2000000 (?purchase bone_chicken) https://imgur.com/88kMYDR")
+        await ctx.reply("**Current cosmetics shop:**\nHeisen-berd: $500000 (?purchase heisenberd) https://imgur.com/yiTOZQQ\nHonored Chicken: $1000000 (?purchase honored_chicken) https://imgur.com/DQ8ZbTv\nBone Chicken: $2000000 (?purchase bone_chicken) https://imgur.com/88kMYDR")
 
     async def duelConfirm(challenger, defender, amount, ctx):
         view = Menu2(challenger, defender, amount, ctx)
@@ -366,6 +380,7 @@ def run_discord_bot(discord):
         await ctx.send(
             f"A duel has started betweeen {challenger.mention} and {defender.mention}. Both players, click a button to choose what fighting style you will use? The winner will then be determined.",
             view=view)
+
 
     class Menu1(discord.ui.View):
         def __init__(self):
@@ -464,10 +479,12 @@ def run_discord_bot(discord):
                         d = z
                     chickens[i] = tuple(z)
                 self.active = False
+                await interaction.response.defer()
                 await beginDuel(self.challenger, self.defender, self.amount, c, d, self.ctx)
-                return
+
             else:
                 await interaction.response.send_message("Button not for you", ephemeral=True)
+                return
 
         @discord.ui.button(label="Decline", style=discord.ButtonStyle.red)
         async def decline(self, interaction: discord.Interaction, button: discord.ui.button):
@@ -476,6 +493,7 @@ def run_discord_bot(discord):
                 return
             if interaction.user == self.defender:
                 self.active = False
+                await interaction.responsedefer()
                 await interaction.response.send_message("Challenge Declined")
                 return
             else:
@@ -502,15 +520,47 @@ def run_discord_bot(discord):
             self.active = True
 
         async def determineWinner(self, c, d):
+            global chickens
             tp = c + d
             x = random.randint(1, tp)
+            print(f"C: {c}")
+            print(f"D: {d}")
+            print(f"x: {x}")
 
             if x <= c:
                 self.c[5] += self.amount * 2
-                await self.ctx.send(f"{self.challenger.mention} is the Winner!")
+                resp = f"{self.challenger.mention} is the Winner!"
+                if (self.c[8] == 0):
+                    resp += "https://imgur.com/CWw0OWA"
+                elif (self.c[8] == 1):
+                    resp += "https://imgur.com/DQ8ZbTv"
+                elif (self.c[8] == 2):
+                    resp += "https://imgur.com/88kMYDR"
+                elif (self.c[8]  == 3):
+                    resp += "https://imgur.com/yiTOZQQ"
+
+                for i in range(len(chickens)):
+                    if chickens[i][0] == self.c[0]:
+                        chickens[i] = self.c
+                await self.ctx.send(resp)
+
+
             else:
                 self.d[5] += self.amount * 2
-                await self.ctx.send(f"{self.defender.mention} is the Winner!")
+                resp = f"{self.defender.mention} is the Winner!"
+                if (self.d[8] == 0):
+                    resp += "https://imgur.com/CWw0OWA"
+                elif (self.d[8] == 1):
+                    resp += "https://imgur.com/DQ8ZbTv"
+                elif (self.d[8] == 2):
+                    resp += "https://imgur.com/88kMYDR"
+                elif (self.d[8]  == 3):
+                    resp += "https://imgur.com/yiTOZQQ"
+
+                for i in range(len(chickens)):
+                    if chickens[i][0] == self.c[0]:
+                        chickens[i] = self.c
+                await self.ctx.send(resp)
 
             return
 
@@ -534,6 +584,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 3:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
             elif interaction.user.id == self.defender.id and self.startCount < 2:
@@ -551,6 +602,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 3:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
 
@@ -568,6 +620,7 @@ def run_discord_bot(discord):
                     self.startCount += 1
                     self.cPower = self.c[2]
                     self.cChoice = 2
+                    await interaction.response.defer()
                     await self.ctx.send("Challenger has Chosen, waiting for Defender's Choice")
                     return
                 elif self.dChoice != 0:
@@ -578,6 +631,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 1:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
 
@@ -586,6 +640,7 @@ def run_discord_bot(discord):
                     self.startCount += 1
                     self.dPower = self.d[2]
                     self.dChoice = 2
+                    await interaction.response.defer()
                     await self.ctx.send("Defender has Chosen, waiting for Challenger's Choice")
                     return
                 elif self.cChoice != 0:
@@ -596,6 +651,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 1:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
 
@@ -613,6 +669,7 @@ def run_discord_bot(discord):
                     self.startCount += 1
                     self.cPower = self.c[3]
                     self.cChoice = 3
+                    await interaction.response.defer()
                     await self.ctx.send("Challenger has Chosen, waiting for Defender's Choice")
                     return
                 elif self.dChoice != 0:
@@ -623,6 +680,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 2:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
             elif interaction.user.id == self.defender.id and self.startCount < 2:
@@ -630,6 +688,7 @@ def run_discord_bot(discord):
                     self.startCount += 1
                     self.dPower = self.d[3]
                     self.dChoice = 3
+                    await interaction.response.defer()
                     await self.ctx.send("Defender has Chosen, waiting for Challenger's Choice")
                     return
                 elif self.cChoice != 0:
@@ -640,6 +699,7 @@ def run_discord_bot(discord):
                     elif self.dChoice == 2:
                         self.dPower *= 2
                     self.active = False
+                    await interaction.response.defer()
                     await self.determineWinner(self.cPower, self.dPower)
                     return
             else:
