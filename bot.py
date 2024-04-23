@@ -52,7 +52,7 @@ def run_discord_bot(discord):
     TOKEN = os.environ['TOKEN']
 
     app_commands = discord.app_commands
-    bot = commands.Bot(command_prefix=".?", intents=discord.Intents.all())
+    bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
     bot.remove_command("help")
 
     chickens = []
@@ -100,7 +100,7 @@ def run_discord_bot(discord):
 
         for i in range(len(chickens)):
             z = list(chickens[i])
-            if z[7] < 86400:
+            if z[7] <= 10800:
                 if z[6] == 1 and z[1] < 900000000:
                     if (z[1] == 1):
                         z[1] -= 1
@@ -120,6 +120,7 @@ def run_discord_bot(discord):
                     z[7] += 20
                     z[5] += 1
             else:
+                await bot.get_user(z[0]).send("Your bot has stopped training, use ?trainchicken in a server or this dm to continue")
                 z[7] = 0
                 z[6] = 0
             chickens[i] = tuple(z)
@@ -150,7 +151,7 @@ def run_discord_bot(discord):
 
     @bot.command()
     async def helpchicken(ctx):
-        await ctx.message.reply("Run **?mychicken** to view/initizalize your chicken (run it in a dm to not reveal your current power)\n\nRun **?trainchicken** to train one of your chicken's stats, default rate is 20 power every 20 seconds and $1 every 20 seconds, regardless of which stat you train.\nYour chicken will continue to train for 24 hours unless stopped using **?stoptrain**, or a duel commencing.\n\nRun **?duel {other player discord tag ping} {amount of money you want to bet}** to begin a duel\nDuels require both players to have the amount of money bet, and the winner takes all.\nWhen dueling, you may choose what stat you would like to duel with however, your probability increases/decreases depending on what style your opponent selects.\nIntelligence gets a 2x increase over strength, Strength gets a 2x increase over agility, and Agility gets a 2x increase over intelligence.\nThe player with the higher battle power after picking their style is not guaranteed to win, but they will have a higher probability of winning.\n\nRun **?skinshop** to view current skins (more to come), and use **?purchase {skin name in shop}** to purchase a skin")
+        await ctx.message.reply("Run **?mychicken** to view/initizalize your chicken (run it in a dm to not reveal your current power)\n\nRun **?trainchicken** to train one of your chicken's stats, default rate is 20 power every 20 seconds and $1 every 20 seconds, regardless of which stat you train.\nYour chicken will continue to train for 3 hours unless stopped using **?stoptrain**, or a duel commencing.\n\nRun **?duel {other player discord tag ping} {amount of money you want to bet}** to begin a duel\nDuels require both players to have the amount of money bet, and the winner takes all.\nWhen dueling, you may choose what stat you would like to duel with however, your probability increases/decreases depending on what style your opponent selects.\nIntelligence gets a 2x increase over strength, Strength gets a 2x increase over agility, and Agility gets a 2x increase over intelligence.\nThe player with the higher battle power after picking their style is not guaranteed to win, but they will have a higher probability of winning.\n\nRun **?skinshop** to view current skins (more to come), and use **?purchase {skin name in shop}** to purchase a skin")
 
     @bot.command()
     async def askpeter(ctx):
@@ -229,6 +230,8 @@ def run_discord_bot(discord):
             resp += "https://imgur.com/88kMYDR"
         elif (cos == 3):
             resp += "https://imgur.com/yiTOZQQ"
+        elif (cos == 4):
+            resp += "https://imgur.com/durB7F2"
 
         await ctx.reply(resp)
 
@@ -319,11 +322,14 @@ def run_discord_bot(discord):
                     z[8] = 1
                     await ctx.reply("Switched to honored chicken.")
                 elif "bone_chicken" in ctx.message.content and "bone_chicken" in z[9]:
-                    z[9] = 2
+                    z[8] = 2
                     await ctx.reply("Switched to bone chicken.")
                 elif "heisenberd" in ctx.message.content and "heisenberd" in z[9]:
-                    z[9] = 2
+                    z[8] = 3
                     await ctx.reply("Switched to heisen-berd.")
+                elif "miku_chicken" in ctx.message.content and "miku_chicken" in z[9]:
+                    z[8] = 4
+                    await ctx.reply("Switched to miku chicken.")
 
             chickens[i] = z
 
@@ -350,7 +356,7 @@ def run_discord_bot(discord):
                     else:
                         z[5] -= 1000000
                         z[9] += "honored_chicken"
-                        await ctx.reply("You have purchased the honored chicken (use ?equip)")
+                        await ctx.reply("You have purchased the honored chicken (use ?equip honored_chicken)")
                 elif "bone_chicken" in ctx.message.content:
                     if "bone_chicken" in z[9]:
                         await ctx.reply("You already have this skin, (use ?equip)")
@@ -359,7 +365,25 @@ def run_discord_bot(discord):
                     else:
                         z[5] -= 2000000
                         z[9] += "bone_chicken"
-                        await ctx.reply("You have purchased the honored chicken (use ?equip)")
+                        await ctx.reply("You have purchased the bone chicken (use ?equip bone_chicken)")
+                elif "heisenberd" in ctx.message.content:
+                    if "heisenberd" in z[9]:
+                        await ctx.reply("You already have this skin, (use ?equip)")
+                    elif z[5] < 500000:
+                        await ctx.reply("You cannot afford this skin.")
+                    else:
+                        z[5] -= 500000
+                        z[9] += "heisenberd"
+                        await ctx.reply("You have purchased the heisenberd (use ?equip heisenberd)")
+                elif "miku_chicken" in ctx.message.content:
+                    if "miku_chicken" in z[9]:
+                        await ctx.reply("You already have this skin, (use ?equip miku_chicken)")
+                    elif z[5] < 1000000:
+                        await ctx.reply("You cannot afford this skin.")
+                    else:
+                        z[5] -= 1000000
+                        z[9] += "miku_chicken"
+                        await ctx.reply("You have purchased the miku chicken (use ?equip miku_chicken)")
 
 
 
@@ -367,7 +391,7 @@ def run_discord_bot(discord):
 
     @bot.command()
     async def skinshop(ctx):
-        await ctx.reply("**Current cosmetics shop:**\nHeisen-berd: $500000 (?purchase heisenberd) https://imgur.com/yiTOZQQ\nHonored Chicken: $1000000 (?purchase honored_chicken) https://imgur.com/DQ8ZbTv\nBone Chicken: $2000000 (?purchase bone_chicken) https://imgur.com/88kMYDR")
+        await ctx.reply("**Current cosmetics shop:**\nHeisen-berd: $500000 (?purchase heisenberd) https://imgur.com/yiTOZQQ\nMiku Chicken: $1000000 (?purchase miku_chicken) https://imgur.com/durB7F2\nHonored Chicken: $1000000 (?purchase honored_chicken) https://imgur.com/DQ8ZbTv\nBone Chicken: $2000000 (?purchase bone_chicken) https://imgur.com/88kMYDR")
 
     async def duelConfirm(challenger, defender, amount, ctx):
         view = Menu2(challenger, defender, amount, ctx)
